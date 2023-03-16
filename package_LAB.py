@@ -1,4 +1,4 @@
-def LL_RT(MV,Kp,Tlead,Tlag,Ts,PV,PVInit=0,method='EBD'):
+def LEADLAG_RT(MV,Kp,Tlead,Tlag,Ts,PV,PVInit=0,method='EBD'):
     
     """
     The function "LL_RT" needs to be included in a "for or while loop".
