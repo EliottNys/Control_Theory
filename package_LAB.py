@@ -36,23 +36,27 @@ def LEADLAG_RT(MV,Kp,Tlead,Tlag,Ts,PV,PVInit=0,method='EBD'):
     else:
         PV.append(Kp*MV[-1])
 
-def PID_RT(MV,MVP,MVI,MVD,MVFF,MVMan,Ts,Kc,Ti,Td,alpha,E,E_init=0,man_mode=False,method='EBD'):
+def PID_RT(SP,E,MV,MVP,MVI,MVD,MVFF,MVMan,MVmin,MVmax,PV,Ts,Kc,Ti,Td,alpha,E_init=0,man_mode=False,method='EBD'):
     
     """
     The function "PID_RT" needs to be included in a "for or while loop".
     
-    :MV: Manipulated value
+    :SP: Setpoint
+    :E: Control error vector
+    :MV: Manipulated value vector
     :MVP: Proportional action vector
     :MVI: Integrating action vector
     :MVD: Derivative action vector
     :MVFF: Feed Forward action vector
     :MVMan: Manual value vector
+    :MVmin: Minimum MV value
+    :MVmax: Maximum MV value
+    :PV: Process value vector
     :Ts: sampling period [s]
     :Kc: gain
     :Ti: Integral time constant
     :td: Derivative time constant
     :alpha: derivative filter smoothing factor
-    :E: error vector
     :E_init: initial error value (optional: default value is 0)
     :man_mode: manual mode flag (optional: default value is False)
     :method: discretisation method (optional: default value is 'EBD')
@@ -62,25 +66,43 @@ def PID_RT(MV,MVP,MVI,MVD,MVFF,MVMan,Ts,Kc,Ti,Td,alpha,E,E_init=0,man_mode=False
     The function "PID_RT" appends a value to the output vector "PV".
     The appended value is obtained from a recurrent equation that depends on the discretisation method.
     """    
+
+    ##### ERROR #####
+
+    if len(PV) == 0:
+        E.append(E_init)
+    else:
+        E.append(SP[-1] - PV[-1])
     
+    ##### PID #####
+
+    # PROPORTIONAL action
     MVP.append(Kc * E[-1])
 
-    if man_mode:
-        MVI.append(MVMan - MVP - MVD - MVFF)
-    else:
-        if len(MV) == 0:
-            MVI.append(((Kc * Ts) / Ti) * E[-1])
-        elif method == 'TRAP':
-            MVI.append(MVI[-1] + ((Kc * Ts) / (2 * Ti)) * (E[-1] + E[-2]))
-        else:
-            MVI.append(MVI[-1] + ((Kc * Ts) / Ti) * E[-1])
+    # INTEGRATING action
+    if len(MV) == 0:
+        MVI.append(((Kc * Ts) / Ti) * E[-1])
+    elif method == 'TRAP':
+        MVI.append(MVI[-1] + ((Kc * Ts) / (2 * Ti)) * (E[-1] + E[-2]))
+    else:   # EBD
+        MVI.append(MVI[-1] + ((Kc * Ts) / Ti) * E[-1])
+    # no EFD because it introduces instability
     
+    # DERIVATIVE action
     Tfd = alpha * Td
     if method == 'TRAP':
         MVD.append(((Tfd - Ts / 2) / (Tfd + Ts / 2)) * MVD[-1] + ((Kc * Td) / (Tfd + Ts / 2)) * (E[-1] - E[-2]))
     else:
         MVD.append((Tfd / (Tfd + Ts)) * MVD[-1] + ((Kc * Td) / (Tfd + Ts)) * (E[-1] - E[-2]))
     
-    # LL_RT(MVFF,Kp,Tlead,Tlag,Ts,PV,) ???
+    # Manual mode integrating action reset
+    if man_mode:
+        MVI[-1] = MVMan[-1] - MVP[-1] - MVD[-1] - MVFF[-1]
 
-    MV.append(MVP[-1] + MVI[-1] + MVD[-1]) # + MVFF[-1] !!!
+    MVtot = MVP[-1] + MVI[-1] + MVD[-1]
+    if MVtot > MVmax:
+        MV.append(MVmax)    # saturation (upper bound)
+    elif MVtot < MVmin:
+        MV.append(MVmin)    # saturation (lower bound)
+    else:
+        MV.append(MVtot)    # ok: within bounds
