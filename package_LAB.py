@@ -36,7 +36,7 @@ def LEADLAG_RT(MV,Kp,Tlead,Tlag,Ts,PV,PVInit=0,method='EBD'):
     else:
         PV.append(Kp*MV[-1])
 
-def PID_RT(SP,E,MV,MVP,MVI,MVD,MVFF,MVMan,MVmin,MVmax,PV,Ts,Kc,Ti,Td,alpha,E_init=0,man_mode=False,method='EBD'):
+def PID_RT(SP,E,MV,MVP,MVI,MVD,MVMan,MVmin,MVmax,PV,Ts,Kc,Ti,Td,alpha,E_init=0,man_mode=False,method='EBD'):
     
     """
     The function "PID_RT" needs to be included in a "for or while loop".
@@ -80,24 +80,34 @@ def PID_RT(SP,E,MV,MVP,MVI,MVD,MVFF,MVMan,MVmin,MVmax,PV,Ts,Kc,Ti,Td,alpha,E_ini
     MVP.append(Kc * E[-1])
 
     # INTEGRATING action
-    if len(MV) == 0:
-        MVI.append(((Kc * Ts) / Ti) * E[-1])
-    elif method == 'TRAP':
-        MVI.append(MVI[-1] + ((Kc * Ts) / (2 * Ti)) * (E[-1] + E[-2]))
+    if method == 'TRAP':
+        if len(MV) == 0:
+            MVI.append(((Kc * Ts) / (2 * Ti)) * E[-1])
+        else:
+            MVI.append(MVI[-1] + ((Kc * Ts) / (2 * Ti)) * (E[-1] + E[-2]))
     else:   # EBD
-        MVI.append(MVI[-1] + ((Kc * Ts) / Ti) * E[-1])
+        if len(MV) == 0:
+            MVI.append(((Kc * Ts) / Ti) * E[-1])
+        else:
+            MVI.append(MVI[-1] + ((Kc * Ts) / Ti) * E[-1])
     # no EFD because it introduces instability
     
     # DERIVATIVE action
     Tfd = alpha * Td
     if method == 'TRAP':
-        MVD.append(((Tfd - Ts / 2) / (Tfd + Ts / 2)) * MVD[-1] + ((Kc * Td) / (Tfd + Ts / 2)) * (E[-1] - E[-2]))
+        if len(MV) == 0:
+            MVD.append(((Kc * Td) / (Tfd + Ts / 2)) * E[-1])
+        else:
+            MVD.append(((Tfd - Ts / 2) / (Tfd + Ts / 2)) * MVD[-1] + ((Kc * Td) / (Tfd + Ts / 2)) * (E[-1] - E[-2]))
     else:
-        MVD.append((Tfd / (Tfd + Ts)) * MVD[-1] + ((Kc * Td) / (Tfd + Ts)) * (E[-1] - E[-2]))
+        if len(MV) == 0:
+            MVD.append(((Kc * Td) / (Tfd + Ts)) * E[-1])
+        else:
+            MVD.append((Tfd / (Tfd + Ts)) * MVD[-1] + ((Kc * Td) / (Tfd + Ts)) * (E[-1] - E[-2]))
     
     # Manual mode integrating action reset
     if man_mode:
-        MVI[-1] = MVMan[-1] - MVP[-1] - MVD[-1] - MVFF[-1]
+        MVI[-1] = MVMan[-1] - MVP[-1] - MVD[-1] # - MVFF
 
     MVtot = MVP[-1] + MVI[-1] + MVD[-1]
     if MVtot > MVmax:
