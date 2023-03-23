@@ -121,30 +121,31 @@ def PID_RT(SP,E,MV,MVP,MVI,MVD,man_mode,MVMan,MVmin,MVmax,PV,Ts,Kc,Ti,Td,alpha,E
     MV.append(MVtot)
 
 
-def IMC_Tuning(K, Tlag1, Tlag2,theta,gamma = 0.5) : 
+def IMC_Tuning(K, T1, T2, theta, gamma=0.5):
     """
-    IMC_Tuning(K,Tlag1,TLag2,theta,gamma=0.5)
-    This function computes the optimised IMC PID tuning parameters for a SOPDT Process. 
+    IMC_Tuning(K, T1, T2, theta, gamma=0.5)
     
-    :Kp: process gain
-    :Tlag1: first lag time constant [s]
-    :Tlag2: second lag time constant [s]
-    :theta: delay [s]
-    :gamma: used to compute the closed loop time constant TCLP [s] such as TCLP = gamma*T1p with T1p = main time constant of the process. (range for gamma is [0.2 ... 0.9], default value is 0.5)
+    This function computes the optimized IMC PID tuning parameters for a SOPDT Process.
     
+    :param K: process gain
+    :param T1: first time constant [s]
+    :param T2: second time constant [s]
+    :param theta: delay [s]
+    :param gamma: used to compute the closed-loop time constant TCLP [s] such as
+                  TCLP = gamma * T1p with T1p = main time constant of the process.
+                  (range for gamma is [0.2 ... 0.9], default value is 0.5)
     
-    returns (Kc,Ti,Td) that are the PID controller parameters
+    :returns: (Kc, Ti, Td) - the PID controller parameters
+    """
     
-    """   
-    Tc = gamma*Tlag1   ## Calcul ? 
+    Tc = gamma * T1   ## Calcul ? 
     
+    KcK = (T1 + T2) / (theta + Tc)
     
-    KcK = (Tlag1+Tlag2)/(theta + Tc)
+    Kc = KcK / K
     
-    Kc = KcK/K
+    Ti = (T1 + T2)
     
-    Ti = (Tlag1 + Tlag2)
+    Td = (T1 * T2) / (T1 + T2)
     
-    Td = (Tlag1*Tlag2)/(Tlag1+Tlag2)
-    
-    return (Kc,Ti,Td)
+    return (Kc, Ti, Td)
