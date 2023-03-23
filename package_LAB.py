@@ -105,14 +105,17 @@ def PID_RT(SP,E,MV,MVP,MVI,MVD,MVMan,MVmin,MVmax,PV,Ts,Kc,Ti,Td,alpha,E_init=0,m
         else:
             MVD.append((Tfd / (Tfd + Ts)) * MVD[-1] + ((Kc * Td) / (Tfd + Ts)) * (E[-1] - E[-2]))
     
+
     # Manual mode integrating action reset
     if man_mode:
         MVI[-1] = MVMan[-1] - MVP[-1] - MVD[-1] # - MVFF
 
+    # Saturation
     MVtot = MVP[-1] + MVI[-1] + MVD[-1]
     if MVtot > MVmax:
-        MV.append(MVmax)    # saturation (upper bound)
+        MVI[-1] = MVmax - MVP[-1] - MVD[-1]
     elif MVtot < MVmin:
-        MV.append(MVmin)    # saturation (lower bound)
-    else:
-        MV.append(MVtot)    # ok: within bounds
+        MVI[-1] = MVmin - MVP[-1] - MVD[-1]
+    
+    MVtot = MVP[-1] + MVI[-1] + MVD[-1]
+    MV.append(MVtot)
