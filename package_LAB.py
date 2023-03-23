@@ -36,7 +36,7 @@ def LEADLAG_RT(MV,Kp,Tlead,Tlag,Ts,PV,PVInit=0,method='EBD'):
     else:
         PV.append(Kp*MV[-1])
 
-def PID_RT(SP,E,MV,MVP,MVI,MVD,MVMan,MVmin,MVmax,PV,Ts,Kc,Ti,Td,alpha,E_init=0,man_mode=False,method='EBD'):
+def PID_RT(SP,E,MV,MVP,MVI,MVD,man_mode,MVMan,MVmin,MVmax,PV,Ts,Kc,Ti,Td,alpha,E_init=0,method='EBD'):
     
     """
     The function "PID_RT" needs to be included in a "for or while loop".
@@ -107,7 +107,7 @@ def PID_RT(SP,E,MV,MVP,MVI,MVD,MVMan,MVmin,MVmax,PV,Ts,Kc,Ti,Td,alpha,E_init=0,m
     
 
     # Manual mode integrating action reset
-    if man_mode:
+    if man_mode[-1]:
         MVI[-1] = MVMan[-1] - MVP[-1] - MVD[-1] # - MVFF
 
     # Saturation
