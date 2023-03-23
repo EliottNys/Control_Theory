@@ -119,3 +119,32 @@ def PID_RT(SP,E,MV,MVP,MVI,MVD,man_mode,MVMan,MVmin,MVmax,PV,Ts,Kc,Ti,Td,alpha,E
     
     MVtot = MVP[-1] + MVI[-1] + MVD[-1]
     MV.append(MVtot)
+
+
+def IMC_Tuning(K, Tlag1, Tlag2,theta,gamma = 0.5) : 
+    """
+    IMC_Tuning(K,Tlag1,TLag2,theta,gamma=0.5)
+    This function computes the optimised IMC PID tuning parameters for a SOPDT Process. 
+    
+    :Kp: process gain
+    :Tlag1: first lag time constant [s]
+    :Tlag2: second lag time constant [s]
+    :theta: delay [s]
+    :gamma: used to compute the closed loop time constant TCLP [s] such as TCLP = gamma*T1p with T1p = main time constant of the process. (range for gamma is [0.2 ... 0.9], default value is 0.5)
+    
+    
+    returns (Kc,Ti,Td) that are the PID controller parameters
+    
+    """   
+    Tc = gamma*Tlag1   ## Calcul ? 
+    
+    
+    KcK = (Tlag1+Tlag2)/(theta + Tc)
+    
+    Kc = KcK/K
+    
+    Ti = (Tlag1 + Tlag2)
+    
+    Td = (Tlag1*Tlag2)/(Tlag1+Tlag2)
+    
+    return (Kc,Ti,Td)
