@@ -121,7 +121,7 @@ def PID_RT(SP,E,MV,MVP,MVI,MVD,man_mode,MVMan,MVmin,MVmax,PV,Ts,Kc,Ti,Td,alpha,E
     MV.append(MVtot)
 
 
-def IMC_Tuning(K, T1, T2, theta, gamma=0.5):
+def IMC_Tuning(K, T1, T2, theta = 0, gamma=0.5):
     """
     IMC_Tuning(K, T1, T2, theta, gamma=0.5)
     
@@ -138,7 +138,7 @@ def IMC_Tuning(K, T1, T2, theta, gamma=0.5):
     :returns: (Kc, Ti, Td) - the PID controller parameters
     """
     
-    Tc = gamma * T1   ## Calcul ? 
+    Tc = gamma * T1  
     
     KcK = (T1 + T2) / (theta + Tc)
     
