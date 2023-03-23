@@ -130,7 +130,6 @@ def IMC_Tuning(K, T1, T2, gamma=0.5):
     :param K: process gain
     :param T1: first time constant [s]
     :param T2: second time constant [s]
-    :param theta: delay [s]
     :param gamma: used to compute the closed-loop time constant TCLP [s] such as
                   TCLP = gamma * T1p with T1p = main time constant of the process.
                   (range for gamma is [0.2 ... 0.9], default value is 0.5)
