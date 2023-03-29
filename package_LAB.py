@@ -121,7 +121,7 @@ def PID_RT(SP,E,MV,MVP,MVI,MVD,man_mode,MVMan,MVmin,MVmax,PV,Ts,Kc,Ti,Td,alpha,E
     MV.append(MVtot)
 
 
-def IMC_Tuning(K, T1, T2, gamma=0.5):
+def IMC_Tuning(K, T1, T2=0, theta=0, gamma=0.5):
     """
     IMC_Tuning(K, T1, T2, theta, gamma=0.5)
     
@@ -139,7 +139,7 @@ def IMC_Tuning(K, T1, T2, gamma=0.5):
     
     Tc = gamma * T1  
 
-    KcK = (T1 + T2) / Tc
+    KcK = (T1 + T2) / (Tc + theta)
     
     Kc = KcK / K
     
