@@ -1,4 +1,4 @@
-def LEADLAG_RT(MV,Kp,Tlead,Tlag,Ts,PV,PVInit=0,method='EBD'):
+def LeadLag_RT(MV,Kp,Tlead,Tlag,Ts,PV,PVInit=0,method='EBD'):
     
     """
     The function "LL_RT" needs to be included in a "for or while loop".
@@ -36,7 +36,7 @@ def LEADLAG_RT(MV,Kp,Tlead,Tlag,Ts,PV,PVInit=0,method='EBD'):
     else:
         PV.append(Kp*MV[-1])
 
-def PID_RT(SP,E,MV,MVP,MVI,MVD,man_mode,MVMan,MVmin,MVmax,PV,Ts,Kc,Ti,Td,alpha,E_init=0,method='EBD'):
+def PID_RT(SP,E,MV,MVP,MVI,MVD,MVFF,man_mode,MVMan,MVmin,MVmax,PV,Ts,Kc,Ti,Td,alpha,E_init=0,method='EBD'):
     
     """
     The function "PID_RT" needs to be included in a "for or while loop".
@@ -108,16 +108,16 @@ def PID_RT(SP,E,MV,MVP,MVI,MVD,man_mode,MVMan,MVmin,MVmax,PV,Ts,Kc,Ti,Td,alpha,E
 
     # Manual mode integrating action reset
     if man_mode[-1]:
-        MVI[-1] = MVMan[-1] - MVP[-1] - MVD[-1] # - MVFF
+        MVI[-1] = MVMan[-1] - MVP[-1] - MVD[-1] - MVFF[-1]
 
     # Saturation
-    MVtot = MVP[-1] + MVI[-1] + MVD[-1]
+    MVtot = MVP[-1] + MVI[-1] + MVD[-1] + MVFF[-1]
     if MVtot > MVmax:
-        MVI[-1] = MVmax - MVP[-1] - MVD[-1]
+        MVI[-1] = MVmax - MVP[-1] - MVD[-1] - MVFF[-1]
     elif MVtot < MVmin:
-        MVI[-1] = MVmin - MVP[-1] - MVD[-1]
+        MVI[-1] = MVmin - MVP[-1] - MVD[-1] - MVFF[-1]
     
-    MVtot = MVP[-1] + MVI[-1] + MVD[-1]
+    MVtot = MVP[-1] + MVI[-1] + MVD[-1] + MVFF[-1]
     MV.append(MVtot)
 
 
